@@ -1,0 +1,31 @@
+{
+  "name": "eventmanage-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vijayashree125/Eventmanage-Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vijayashree125/Eventmanage-Backend/issues"
+  },
+  "homepage": "https://github.com/Vijayashree125/Eventmanage-Backend#readme",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
+    "mongoose": "^8.10.0",
+    "nodemailer": "^6.10.0",
+    "nodemon": "^3.1.9"
+  }
+}
