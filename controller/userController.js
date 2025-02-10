@@ -5,7 +5,7 @@ const Registration = require('../models/eventRegister');
 const bcrypt = require("bcrypt")
 const mailModel = require("../helpers/mail")
 const jwt = require("jsonwebtoken")
-const moment = require("moment")
+const mongoose = require("mongoose")
 
 //create user account
 module.exports.userRegister = async (req, res) => {
@@ -28,11 +28,12 @@ module.exports.userRegister = async (req, res) => {
         else if (finddata == undefined || finddata == null) {
             await userModel.create(insertData).then(async (createUser) => {
                 if (createUser) {
+                    await userModel.updateOne({ email: userInfo.email }, { $set: { emailVerified: true } })
                     // const verificationLink = `http://localhost:5000/verify-acoount?token=${generateOTP}`;
                     // mailModel.sendmail(userInfo.email, generateOTP).then((response) => {
                     res.json({
                         status: true,
-                        message: "User Account Created Successfully,Send Mail registration mail Id"
+                        message: "User Account Registered Successfully"
                     })
                     // })
                 }
@@ -53,25 +54,25 @@ module.exports.userRegister = async (req, res) => {
     })
 }
 
-//verify account
-module.exports.verifyToken = async (req, res) => {
-    var otp = req.params.otp
-    await userModel.findOne({ otpCode: otp }).then(async (userOtp) => {
-        if (userOtp != null) {
-            await userModel.updateOne({ otpCode: "", emailVerified: true }).then(updatedata => { })
-            res.json({
-                status: true,
-                message: "OTP Verified Successfully"
-            })
-        }
-        else {
-            res.json({
-                status: false,
-                message: "Invalid Otp"
-            })
-        }
-    })
-}
+// //verify account
+// module.exports.verifyToken = async (req, res) => {
+//     var otp = req.params.otp
+//     await userModel.findOne({ otpCode: otp }).then(async (userOtp) => {
+//         if (userOtp != null) {
+//             await userModel.updateOne({ otpCode: "", emailVerified: true }).then(updatedata => { })
+//             res.json({
+//                 status: true,
+//                 message: "OTP Verified Successfully"
+//             })
+//         }
+//         else {
+//             res.json({
+//                 status: false,
+//                 message: "Invalid Otp"
+//             })
+//         }
+//     })
+// }
 
 //user login 
 module.exports.userLogin = async (req, res) => {
@@ -92,7 +93,7 @@ module.exports.userLogin = async (req, res) => {
                 res.json({
                     status: true,
                     message: "Login Successfully",
-                    data: { authToken: jwtToken }
+                    data: { authToken: jwtToken, userId: userdata._id }
                 })
             }
             else {
@@ -112,21 +113,53 @@ module.exports.userLogin = async (req, res) => {
     })
 }
 
+//get user details
+module.exports.getUserdetails = async (req, res) => {
+    const userId = req.params.id
+    console.log(userId, "userId")
+    await userModel.find({ _id: new mongoose.Types.ObjectId(userId) }).then(async (userdata) => {
+        console.log(userdata)
+        if (userdata.length > 0) {
+            res.json({
+                status: true,
+                message: "Get user details",
+                data: userdata
+            })
+        } else {
+            res.json({
+                status: false,
+                message: "Data not found",
+                data: []
+            })
+        }
+    })
+}
+
 //Get User Login History
 module.exports.userLogHis = async (req, res) => {
-    await userActivityModel.find({ userId: req.body.userId }).then((logdata) => {
+    let page = parseInt(req.query.page) || 1;
+    console.log('page', page)
+    let limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalUsers = await userActivityModel.countDocuments();
+
+    await userActivityModel.find({ userId: req.params.userId }).sort({ dateTime: -1 }).skip(skip).limit(limit).then((logdata) => {
         if (logdata.length > 0) {
             res.json({
                 status: true,
                 message: "Get Login History",
-                data: logdata
+                data: logdata,
+                totalCount: totalUsers,
+
             })
         }
         else {
             res.json({
                 status: false,
                 message: "No data found",
-                data: []
+                data: [],
+                totalCount: 0,
+
             })
         }
     })
@@ -134,20 +167,27 @@ module.exports.userLogHis = async (req, res) => {
 
 //Upcoming events
 module.exports.upcomingEvent = async (req, res) => {
+    let page = parseInt(req.query.page) || 1;
+    console.log('page', page)
+    let limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalUsers = await eventModel.countDocuments();
     var currentDate = new Date()
-    await eventModel.find({ date: { $gt: currentDate } }).sort({ date: -1 }).then((response) => {
+    await eventModel.find({ date: { $gt: currentDate } }).sort({ date: -1 }).sort({ dateTime: -1 }).skip(skip).limit(limit).then((response) => {
         if (response.length > 0) {
             res.json({
                 status: true,
                 message: "Get Upcoming Event Details",
-                data: response
+                data: response,
+                totalCount: totalUsers,
             })
         }
         else {
             res.json({
                 status: false,
                 message: "No Data Found",
-                data: []
+                data: [],
+                totalCount: 0
             })
         }
     })
@@ -176,18 +216,35 @@ module.exports.eventRegister = async (req, res) => {
             res.json({ message: `${event.title} Event Registration successful`, registration });
         }
     }
-}   
+}
 
 
 //get user registration
 
 module.exports.getRegisterUser = async (req, res) => {
-    const eventRegs = await Registration.find({ eventId: req.body.eventId }).populate('userId', 'username email mobileNumber');
+    let page = parseInt(req.query.page) || 1;
+    console.log('page', page)
+    let limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalUsers = await Registration.countDocuments();
+    const eventRegs = await Registration.find({ userId: req.params.userId }).sort({ registrationDate: -1 }).skip(skip).limit(limit).populate('eventId', 'title date location description');
     res.json({
         status: true,
-        data: eventRegs
+        data: eventRegs,
+        totalCount: totalUsers
     })
 }
+
+//get user registration
+
+module.exports.getDisplayRegister = async (req, res) => {
+    const eventlist = await eventModel.findOne({ title: (req.params.title).trim() })
+    res.json({
+        status: true,
+        data: eventlist
+    })
+}
+
 
 //logout
 

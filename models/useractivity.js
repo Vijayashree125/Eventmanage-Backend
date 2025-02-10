@@ -5,7 +5,7 @@ const userActivitySchema = new mongoose.Schema({
     type: { type: String },
     ip: { type: String },
     userAgent: { type: String },
-    timestamp: { type: String },
+    dateTime: { type: Date,default:new Date() },
 },
     { timestamps: true }
 )

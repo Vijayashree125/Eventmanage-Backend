@@ -5,13 +5,14 @@ const JwtToken = require("../helpers/tokenVerify")
 
 //Define API  routes
 router.post("/createAccount", userRoute.userRegister)
-router.post("/verifyToken/:otp", userRoute.verifyToken)
+// router.post("/verifyToken/:otp",JwtToken.verifyAuthToken,  userRoute.verifyToken)
 router.post("/userLogin", userRoute.userLogin)
-router.post("/userLogHis", userRoute.userLogHis)
-// router.get("/dashboard", JwtToken.verifyAuthToken, userRoute.dashboard)
-router.get("/upcomingEvent", userRoute.upcomingEvent)
-router.post("/eventRegister", userRoute.eventRegister)
-router.post("/getRegisterUser", userRoute.getRegisterUser)
+router.post("/userLogHis/:userId", userRoute.userLogHis)
+router.get("/getUserdetails/:id",userRoute.getUserdetails)
+router.get("/getDisplayRegister/:title",userRoute.getDisplayRegister)
+router.get("/upcomingEvent",userRoute.upcomingEvent)
+router.post("/eventRegister",userRoute.eventRegister)
+router.post("/getRegisterUser/:userId", userRoute.getRegisterUser)
 router.post("/userLogout", userRoute.userLogout)
 
 module.exports = router;

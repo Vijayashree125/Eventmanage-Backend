@@ -2,13 +2,14 @@ const express = require("express");
 const nodemon = require("nodemon");
 const createError = require("http-errors");
 const connectDB = require("./dbconnection/db");
+const cors=require("cors")
 
 require('dotenv').config(); // Load .env file
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors());
 // Connect to MongoDB
 connectDB();
 
