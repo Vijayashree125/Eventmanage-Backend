@@ -18,10 +18,6 @@ connectDB();
 app.use("/user", require('./routes/userRoute'))
 app.use("/admin", require('./routes/adminRoute'))
 
-const server = http.createServer((req, res) => {
-    res.write('"Welcome To Cogniwide Solutions!');
-    res.end(); 
-})
 //testing nodejs http method
 app.get("/", (req, res) => {
     res.send("Welcome To Cogniwide Solutions!");
@@ -42,6 +38,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
