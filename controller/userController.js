@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt")
 const mailModel = require("../helpers/mail")
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
+const details = require("../common");
 
 //create user account
 module.exports.userRegister = async (req, res) => {
@@ -80,7 +81,7 @@ module.exports.userLogin = async (req, res) => {
     await userModel.findOne({ email: email }).then(async (userdata) => {
         if (userdata != null) {
             var comparePassword = await bcrypt.compare(password, userdata.password);
-            var jwtToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" })
+            var jwtToken = jwt.sign({ email }, details.data.JWT_SECRET, { expiresIn: "1h" })
             if (comparePassword) {
                 //save user login activity
                 await userActivityModel.create({

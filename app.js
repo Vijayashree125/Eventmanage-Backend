@@ -1,8 +1,8 @@
 const express = require("express");
-const http = require("http");
 const nodemon = require("nodemon");
 const createError = require("http-errors");
 const connectDB = require("./dbconnection/db");
+const details = require("./common");
 const cors = require("cors")
 
 require('dotenv').config(); // Load .env file
@@ -37,7 +37,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = details.data.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

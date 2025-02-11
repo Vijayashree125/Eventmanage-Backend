@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const details=require('../common')
 
 module.exports.verifyAuthToken = (req, res, next) => {
     const authHeader = req.headers['x-access-token']
@@ -9,7 +10,7 @@ module.exports.verifyAuthToken = (req, res, next) => {
             message: "Token required"
         })
     } else {
-        jwt.verify(token, process.env.JWT_SECRET,(err,user) => {
+        jwt.verify(token, details.data.JWT_SECRET,(err,user) => {
             if (err) {
                 return res.json({
                     status: 403,

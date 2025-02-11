@@ -5,6 +5,8 @@ const userModel=require("../models/user")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const moment = require("moment")
+const details = require("../common");
+
 //create Admin account
 module.exports.adminRegister = async (req, res) => {
     var adminInfo = req.body
@@ -50,7 +52,7 @@ module.exports.adminLogin = async (req, res) => {
     await adminModel.findOne({ email: email }).then(async (admindata) => {
         if (admindata != null) {
             var comparePassword = await bcrypt.compare(password, admindata.password);
-            var jwtToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" })
+            var jwtToken = jwt.sign({ email }, details.data.JWT_SECRET, { expiresIn: "1h" })
             if (comparePassword) {
                 await adminActivityModel.create({
                     adminId: admindata._id,
