@@ -113,32 +113,10 @@ module.exports.userLogin = async (req, res) => {
     })
 }
 
-//get user details
-module.exports.getUserdetails = async (req, res) => {
-    const userId = req.params.id
-    console.log(userId, "userId")
-    await userModel.find({ _id: new mongoose.Types.ObjectId(userId) }).then(async (userdata) => {
-        console.log(userdata)
-        if (userdata.length > 0) {
-            res.json({
-                status: true,
-                message: "Get user details",
-                data: userdata
-            })
-        } else {
-            res.json({
-                status: false,
-                message: "Data not found",
-                data: []
-            })
-        }
-    })
-}
 
 //Get User Login History
 module.exports.userLogHis = async (req, res) => {
     let page = parseInt(req.query.page) || 1;
-    console.log('page', page)
     let limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     const totalUsers = await userActivityModel.countDocuments();

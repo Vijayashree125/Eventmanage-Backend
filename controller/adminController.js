@@ -1,6 +1,7 @@
 const adminModel = require("../models/admin")
 const adminActivityModel = require("../models/adminactivity")
 const eventModel = require("../models/events")
+const userModel=require("../models/user")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const moment = require("moment")
@@ -60,7 +61,7 @@ module.exports.adminLogin = async (req, res) => {
                 res.json({
                     status: true,
                     message: "Login Successfully",
-                    data: { authToken: jwtToken }
+                    data: { authToken: jwtToken, adminId: admindata._id }
                 })
             }
             else {
@@ -82,19 +83,28 @@ module.exports.adminLogin = async (req, res) => {
 
 //Get Admin Login History
 module.exports.adminLogHis = async (req, res) => {
-    await adminActivityModel.find({}).then((logdata) => {
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalUsers = await adminActivityModel.countDocuments();
+
+    await adminActivityModel.find({ adminId: req.params.adminId }).sort({ dateTime: -1 }).skip(skip).limit(limit).then((logdata) => {
         if (logdata.length > 0) {
             res.json({
                 status: true,
                 message: "Get Login History",
-                data: logdata
+                data: logdata,
+                totalCount: totalUsers,
+
             })
         }
         else {
             res.json({
                 status: false,
                 message: "No data found",
-                data: []
+                data: [],
+                totalCount: 0,
+
             })
         }
     })
@@ -140,10 +150,13 @@ module.exports.updateEvent = async (req, res) => {
     var eventDetails = req.body
     var updateEvent = {
         description: eventDetails.description,
-        date: eventDetails.date,
+        date: new Date(eventDetails.date),
         location: eventDetails.location,
     }
-    await eventModel.updateOne({ title: eventDetails.title }, { $set: updateEvent }).then(async (updatedata) => {
+    console.log(updateEvent,'===================================');
+    
+    await eventModel.updateOne({ title: req.body.title }, { $set: updateEvent }).then(async (updatedata) => {
+        console.log(updatedata,'Updatedataaaa')
         if (updatedata.modifiedCount == 1) {
             res.json({
                 status: true,
@@ -182,19 +195,52 @@ module.exports.deleteEvent = async (req, res) => {
 //get all events
 
 module.exports.getAllEvent = async (req, res) => {
-    await eventModel.find({}).then(async (getEvents) => {
+    let page = parseInt(req.query.page) || 1;
+    console.log('page', page)
+    let limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalUsers = await eventModel.countDocuments();
+    await eventModel.find({}).sort({ _id: -1 }).skip(skip).limit(limit).then(async (getEvents) => {
         if (getEvents.length > 0) {
             res.json({
                 status: true,
                 message: "Get Event Details",
-                data: getEvents
+                data: getEvents,
+                totalCount: totalUsers
             })
         }
         else {
             res.json({
                 status: false,
                 message: "No Data Found",
-                data: []
+                data: [],
+                totalCount: 0
+            })
+        }
+    })
+}
+
+//get user details
+module.exports.getUserdetails = async (req, res) => {
+    let page = parseInt(req.query.page) || 1;
+    console.log('page', page)
+    let limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalUsers = await eventModel.countDocuments();
+    await userModel.find({ }).sort({ _id: -1 }).skip(skip).limit(limit).then(async (userdata) => {
+        if (userdata.length > 0) {
+            res.json({
+                status: true,
+                message: "Get user details",
+                data: userdata,
+                totalCount: totalUsers
+            })
+        } else {
+            res.json({
+                status: false,
+                message: "Data not found",
+                data: [],
+                totalCount: 0
             })
         }
     })

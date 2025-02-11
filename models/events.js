@@ -1,10 +1,10 @@
 const mongoose = require("mongoose")
 
 const eventSchema = new mongoose.Schema({
-    title: { type: String, default: "" },
-    description: { type: String, default: "" },
+    title: { type: String},
+    description: { type: String },
     date: { type: Date },
-    location: { type: String, default: "" },
+    location: { type: String },
     registeredUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 
 },

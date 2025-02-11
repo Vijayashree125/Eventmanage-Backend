@@ -1,8 +1,9 @@
 const express = require("express");
+const http = require("http");
 const nodemon = require("nodemon");
 const createError = require("http-errors");
 const connectDB = require("./dbconnection/db");
-const cors=require("cors")
+const cors = require("cors")
 
 require('dotenv').config(); // Load .env file
 
@@ -14,9 +15,13 @@ app.use(cors());
 connectDB();
 
 // Use Routes
-app.use("/user",require('./routes/userRoute'))
-app.use("/admin",require('./routes/adminRoute'))
+app.use("/user", require('./routes/userRoute'))
+app.use("/admin", require('./routes/adminRoute'))
 
+const server = http.createServer((req, res) => {
+    res.write('"Welcome To Cogniwide Solutions!');
+    res.end(); 
+})
 //testing nodejs http method
 app.get("/", (req, res) => {
     res.send("Welcome To Cogniwide Solutions!");
@@ -37,6 +42,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
